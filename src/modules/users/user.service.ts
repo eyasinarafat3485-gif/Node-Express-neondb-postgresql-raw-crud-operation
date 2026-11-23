@@ -6,16 +6,16 @@ const createUserIntoDB = async (payload: IUser) => {
   // console.log(req.body);
   //   const body = req.body;
 
-  const { name, email, password, age } = payload;
+  const { name, email, password, age, role } = payload;
   const hashPassword = await bcrypt.hash(password, 10);
   console.log(hashPassword);
 
   const result = await pool.query(
     `
-    INSERT INTO users (name, email, password, age) VALUES 
-    ($1,$2,$3,$4) RETURNING * 
+    INSERT INTO users (name, email, password, age, role) VALUES 
+    ($1,$2,$3,$4,COALESCE($5, 'user')) RETURNING * 
     `,
-    [name, email, hashPassword, age],
+    [name, email, hashPassword, age, role],
   );
   // console.log(result);
   delete result.rows[0].password;
@@ -60,7 +60,6 @@ const updateUserFromDB = async(payload: any, id: string) =>{
     // console.log(result);
     return result;
 }
-
 
 const deleteUserFromDB = async(id : string) =>{
   const result = await pool.query(
